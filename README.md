@@ -18,7 +18,7 @@ This project aims to track the fingertip locations of both hands while reading B
 
 1. Install the required libraries by running:
    
-pip install -r requirements.txt
+`pip install -r requirements.txt`
 
 
 2. Run the scripts in the following order:
