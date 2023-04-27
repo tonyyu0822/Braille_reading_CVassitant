@@ -7,7 +7,6 @@ import numpy as np
 import csv
 import datetime
 from time import time
-
 mp_drawing = mp.solutions.drawing_utils  # Drawing helpers
 # mp_holistic = mp.solutions.holistic # Mediapipe Solutions - unused
 mp_hands = mp.solutions.hands
@@ -16,12 +15,10 @@ mp_hands = mp.solutions.hands
 # INPUTS:
 
 # Define the path to the input video file here:
-video_file_name = './downsampled.mp4'
-
-
+video_file_name = './transformed_video.mp4'
 
 # Choose whether or not to see video as it is being analyzed:
-display_annotated_video = True
+display_annotated_video = False
 
 t = time()  # Set a timer for later to see how long code takes to run
 now = datetime.datetime.now()
@@ -55,13 +52,26 @@ with open(folder + filename, mode='w', newline='') as f:
 # Start reading the video from the file
 cap = cv2.VideoCapture(video_file_name)
 
+fps_input = int(cap.get(cv2.CAP_PROP_FPS))
+time_per_frame = 1 / fps_input
+
+
+"""
+Output video
+"""
+fps_target = 29
+fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+output_video_file = './Detected_output_video.mp4'
+frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+out = cv2.VideoWriter(output_video_file, fourcc, fps_target, (frame_width, frame_height))
 
 frame_no = 0
-with mp_hands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.4) as hands:
+with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5) as hands:
     while cap.isOpened():
         ret, frame = cap.read()
         frame = cv2.flip(frame,-1)
-        elapsed_time = time() - t
+        elapsed_time = frame_no * time_per_frame
         print(elapsed_time)
         if frame is None:
             print("Finished analyzing video")
@@ -79,6 +89,7 @@ with mp_hands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.4) a
         # Revert image after hands detection
         image.flags.writeable = True
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)  # RGB 2 BGR
+
 
         # pose is a list whose ith entry is the data for the ith hand detected
         # (ideally two hands are detected if two hands are in the video...)
@@ -121,13 +132,13 @@ with mp_hands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.4) a
                 row_partials[handedness] = T + I + M + R + P
                 print(row_partials[handedness])
 
-                if display_annotated_video:
-                    # Draw the skeleton with dots on the joints for this hand
-                    mp_drawing.draw_landmarks(image, hand, mp_hands.HAND_CONNECTIONS,
+                # Draw the skeleton with dots on the joints for this hand
+                mp_drawing.draw_landmarks(image, hand, mp_hands.HAND_CONNECTIONS,
                                               mp_drawing.DrawingSpec(color=(121, 22, 76), thickness=2, circle_radius=4),
                                               mp_drawing.DrawingSpec(color=(250, 44, 250), thickness=2,
                                                                      circle_radius=2),
                                               )
+            
 
             # Fill in any missing handed data with None.
             if ("Left" in row_partials) and ("Right" in row_partials):
@@ -159,12 +170,33 @@ with mp_hands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.4) a
 
         frame_no += 1
 
+        out.write(cv2.flip(image, 0))
         if display_annotated_video:
-            cv2.imshow('Video from ' + video_file_name, cv2.flip(image, 1))
-            if cv2.waitKey(10) & 0xFF == ord('q'):  # Exit the video playback by pressing the Q key.
+            cv2.imshow('Video from ' + video_file_name, cv2.flip(image, 0))
+            if cv2.waitKey(1) & 0xFF == ord('q'):  # Exit the video playback by pressing the Q key.
                 break
-
 print("Analysis concluded in " + str((time() - t)) + " seconds. Results recorded in " + folder+filename)
 
 cap.release()
 cv2.destroyAllWindows()
+
+# Delete the Z columns from the csv file, since we don't need them. 
+def delete_z_columns(file_path):
+    with open(file_path, 'r') as file:
+        reader = csv.reader(file)
+        header = next(reader)
+        data = [row for row in reader]
+    
+    new_header = [col for col in header if not col.endswith("Z") and col not in ["FrameNumber", "HandsPresent"]]
+    new_data = []
+    for row in data:
+        new_row = [row[header.index(col)] for col in new_header]
+        new_data.append(new_row)
+    
+    with open(file_path, 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(new_header)
+        writer.writerows(new_data)
+
+# Example usage
+delete_z_columns(folder + filename)

@@ -12,12 +12,14 @@ def l2_norm(coord1, coord2):
     return np.sqrt((coord1[0] - coord2[0]) ** 2 + (coord1[1] - coord2[1]) ** 2)
 
 def main():
-    coord_file = "/Users/by12/Braille/FingerTracker/code/index_coord_without_coordinate.csv"
-    no_z_file = "/Users/by12/Braille/FingerTracker/output_logs/no_z.csv"
+    coord_file = "/Users/by12/Braille/FingerTracker/output_logs/monitor_data/test_acc.csv"
+    no_z_file = "/Users/by12/Braille/FingerTracker/output_logs/coords_2023-04-20_00-27-28-429140.csv"
 
     coord_df = pd.read_csv(coord_file)
     no_z_df = pd.read_csv(no_z_file)
+    no_z_df.iloc[:, 0] += 0.5
 
+    print(no_z_df.head())
     coord_df['PredictedFinger'] = ""
 
     for index, row in coord_df.iterrows():
@@ -52,9 +54,9 @@ def main():
                 for finger, finger_coord in finger_coords:
                     distance = l2_norm(finger_coord, ref_coord)
                     
-                    # Add a penalty factor to Ring and Pinky fingers
-                    if finger.endswith('Ring') or finger.endswith('Pinky'):
-                        penalty_factor = 1.5
+                    #Add a penalty factor to Ring and Pinky fingers
+                    if  finger.endswith('Pinky') or  finger.endswith('Ring'):
+                        penalty_factor = 10
                         distance *= penalty_factor
 
                     if distance < min_distance:
@@ -72,3 +74,9 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+
+
+
+

@@ -18,4 +18,4 @@ def delete_z_columns(file_path):
         writer.writerows(new_data)
 
 # Example usage
-delete_z_columns("/Users/by12/Braille/FingerTracker/output_logs/coords_2023-03-22_23-03-05-145722.csv")
+delete_z_columns("/Users/by12/Braille/FingerTracker/output_logs/coords_2023-04-20_00-27-28-429140.csv")
