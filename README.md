@@ -46,3 +46,7 @@ After running the code, a freezed frame will show up for you to manually identif
 - CSV and datetime libraries: Part of the Python standard library, used for file processing and time calculations
 
 Please make sure to install the required libraries and dependencies before running the project.
+
+
+## Test run
+Please use the 4x.mp4 for video input and output10_norm.txt for monitor input 
