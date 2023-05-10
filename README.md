@@ -30,7 +30,6 @@ The output is a combined video displaying the live finger tip detection informat
 After running the code, a freezed frame will show up for you to manually identify the four corners of the screen(which should be taped in blue, not the four corners of the braille page). Select the four points in this order(left bottom, right bottom, left top, right top, after selecting four corners in this order, hit enter and the video frame window should display the transformed view with the title(Transformed Video). Please wait until the video render finishes.
 
 - Run Braille_finger_tracker.py: To detect fingertip locations and save them in a CSV file that will be labeled with data and time:
-
 - Run Convert_tzt_2_csv.py: To convert the monitor recording txt file to a CSV file that is compatible with format of the CV detected CSV from previous step.
 - Run predict.py: To make predictions on which finger is touching the Braille page.
 - RunDisplay.py: To display the combined video showing the live predictions.
